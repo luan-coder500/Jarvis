@@ -1,0 +1,467 @@
+<html></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06111f">
+<title>JARVIS IA — Assistente Android</title>
+<style>
+:root{--bg:#050b14;--panel:#0b1929;--cyan:#00e5ff;--blue:#168cff;--text:#e8f7ff;--muted:#90a9bd;--border:#16405a;--green:#35f5a0}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#102d48,transparent 55%),var(--bg);color:var(--text);font-family:Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;color:var(--text);background:#10273c;border:1px solid var(--border);border-radius:11px;padding:11px}
+button:active{transform:scale(.98)}
+.primary{background:linear-gradient(120deg,var(--cyan),#56aaff);color:#00111a;border:0;font-weight:bold}
+.danger{color:#ff9caf;border-color:#78364a}
+input,textarea,select{width:100%;background:#061321;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:12px;outline:none}
+header{padding:19px 15px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.logo{font-size:25px;color:var(--cyan);font-weight:900;letter-spacing:3px}
+.subtitle,.small{font-size:11px;color:var(--muted);line-height:1.5}
+.status{font-size:11px;color:var(--green)}
+main{max-width:850px;margin:auto;padding:8px 13px 30px}
+.panel{background:linear-gradient(145deg,#0b1b2b,#081321);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:13px}
+.heading{font-size:12px;color:var(--cyan);letter-spacing:2px;font-weight:bold;margin-bottom:13px}
+.hero{text-align:center;padding:20px 10px}
+.reactor{width:140px;height:140px;border:1px solid #00e5ff88;border-radius:50%;display:grid;place-items:center;margin:5px auto 18px;box-shadow:0 0 30px #00e5ff20;position:relative}
+.reactor:before,.reactor:after{content:"";position:absolute;inset:10px;border:1px solid #00e5ff66;border-radius:50%}
+.reactor:after{inset:22px;border-style:dashed}
+.core{width:68px;height:68px;border-radius:50%;background:radial-gradient(circle,#b6fbff,#00bce9 40%,#07518b);box-shadow:0 0 28px var(--cyan);animation:pulse 3s infinite}
+@keyframes pulse{50%{transform:scale(1.1);opacity:.8}}
+.hero h1{font-size:22px;margin:0 0 7px}
+.hero p{font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tile{text-align:left;min-height:70px;display:flex;align-items:center;gap:9px}
+.tile .emoji{font-size:22px}
+.tile b{font-size:13px;display:block}
+.tile small{font-size:10px;color:var(--muted);display:block;margin-top:4px}
+.row{display:flex;gap:7px;align-items:center;margin-top:8px}
+.row>*{min-width:0}
+.row input{flex:1}
+.chat{height:270px;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:4px 0 10px}
+.msg{max-width:95%;white-space:pre-wrap;overflow-wrap:anywhere;padding:11px 13px;border-radius:12px;font-size:14px;line-height:1.5}
+.msg.user{align-self:flex-end;background:#123a55;border:1px solid #1a6684}
+.msg.ai{align-self:flex-start;background:#0b2636;border:1px solid #15506a}
+.who{font-size:10px;letter-spacing:1px;color:var(--cyan);font-weight:bold;margin-bottom:5px}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;gap:8px;align-items:flex-start;background:#081522;border:1px solid #163348;border-radius:10px;padding:10px}
+.itemcontent{flex:1;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}
+.item time{display:block;color:var(--muted);font-size:10px;margin-top:5px}
+.item button{font-size:11px;padding:7px}
+video,.preview{width:100%;max-height:350px;object-fit:contain;background:#000;border-radius:12px;margin-top:8px}
+hr{border:0;border-top:1px solid var(--border);margin:15px 0}
+.hidden{display:none!important}
+footer{text-align:center;padding:5px 15px 25px;color:#58738b;font-size:10px}
+@media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+
+<header>
+ <div><div class="logo">J.A.R.V.I.S.</div><div class="subtitle">ASSISTENTE PESSOAL INTELIGENTE</div></div>
+ <div class="status">● <span id="status">PRONTO</span></div>
+</header>
+
+<main>
+<section class="panel hero">
+ <div class="reactor"><div class="core"></div></div>
+ <h1>Olá. Sou o JARVIS.</h1>
+ <p id="greeting">Sistema inicializado. Aguardando instruções.</p>
+ <div class="row" style="justify-content:center;flex-wrap:wrap">
+  <button class="primary" onclick="startVoice()">🎙️ Falar comigo</button>
+  <button onclick="speak('Olá. Sou o JARVIS. Como posso ajudar?')">🔊 Testar voz</button>
+ </div>
+</section>
+
+<section class="panel">
+ <div class="heading">▸ PAINEL PRINCIPAL</div>
+ <div class="grid">
+  <button class="tile" onclick="go('chatSection')"><span class="emoji">🧠</span><span><b>Inteligência</b><small>Conversar com a IA</small></span></button>
+  <button class="tile" onclick="go('visionSection')"><span class="emoji">👁️</span><span><b>Visão</b><small>Câmera e fotos</small></span></button>
+  <button class="tile" onclick="go('appsSection')"><span class="emoji">📱</span><span><b>Aplicativos</b><small>Atalhos Android</small></span></button>
+  <button class="tile" onclick="go('notesSection')"><span class="emoji">💾</span><span><b>Memória</b><small>Salvar notas</small></span></button>
+  <button class="tile" onclick="go('historySection');renderHistory()"><span class="emoji">📚</span><span><b>Histórico</b><small>Conversas salvas</small></span></button>
+  <button class="tile" onclick="go('settingsSection')"><span class="emoji">⚙️</span><span><b>Configurações</b><small>Personalizar JARVIS</small></span></button>
+ </div>
+</section>
+
+<section class="panel" id="chatSection">
+ <div class="heading">▸ CENTRAL DE INTELIGÊNCIA</div>
+ <div class="chat" id="chat">
+  <div class="msg ai"><div class="who">JARVIS</div>Olá! Estou pronto. Configure o Gemini para respostas inteligentes ou use os comandos locais.</div>
+ </div>
+ <div class="row">
+  <button onclick="startVoice()">🎙️</button>
+  <input id="prompt" placeholder="Digite uma mensagem..." enterkeyhint="send">
+  <button class="primary" onclick="sendMessage()">Enviar ➤</button>
+ </div>
+ <div class="row" style="flex-wrap:wrap">
+  <button onclick="runCommand('Que horas são?')">🕒 Horas</button>
+  <button onclick="runCommand('Me ajude a estudar')">📖 Estudar</button>
+  <button onclick="go('visionSection')">👁️ Visão</button>
+  <button onclick="clearChat()">Limpar tela</button>
+ </div>
+ <p class="small">A conversa com Gemini requer internet e uma chave API válida. O modo local oferece apenas respostas e comandos básicos.</p>
+</section>
+
+<section class="panel" id="visionSection">
+ <div class="heading">▸ SISTEMA DE VISÃO</div>
+ <video id="camera" autoplay playsinline muted class="hidden"></video>
+ <canvas id="canvas" class="hidden"></canvas>
+ <img id="preview" class="preview hidden" alt="Prévia da imagem">
+ <div class="grid" style="margin-top:10px">
+  <button class="primary" onclick="startCamera()">📷 Ativar câmera</button>
+  <button onclick="capturePhoto()">📸 Capturar imagem</button>
+  <button onclick="$('imageFile').click()">🖼️ Escolher foto</button>
+  <button class="danger" onclick="stopCamera()">⏹️ Desligar câmera</button>
+ </div>
+ <input id="imageFile" type="file" accept="image/*" class="hidden" onchange="selectImage(event)">
+ <hr>
+ <label class="small" for="visionQuestion">O que você quer perguntar sobre a imagem?</label>
+ <input id="visionQuestion" value="Descreva o que você vê nesta imagem." style="margin-top:7px">
+ <div class="row">
+  <button class="primary" style="flex:1" onclick="analyzeImage()">🧠 Analisar imagem</button>
+  <button onclick="askVisionVoice()">🎙️ Perguntar</button>
+ </div>
+ <p class="small">A câmera é ativada somente quando você solicita. A análise da imagem é enviada ao Gemini quando você toca em Analisar imagem.</p>
+</section>
+
+<section class="panel" id="appsSection">
+ <div class="heading">▸ CENTRAL DE APLICATIVOS</div>
+ <input id="appSearch" placeholder="Pesquisar aplicativo..." oninput="renderApps()">
+ <div class="grid" id="appGrid" style="margin-top:10px"></div>
+ <hr>
+ <div class="heading">▸ CONFIGURAÇÕES E ATALHOS</div>
+ <div class="grid">
+  <button onclick="openLink('https://support.google.com/android/answer/9075847')">📶 Ajuda Wi-Fi</button>
+  <button onclick="openLink('https://support.google.com/android/answer/9075925')">🔵 Ajuda Bluetooth</button>
+  <button onclick="openLink('https://www.google.com/search?q=abrir+configuracoes+android')">⚙️ Configurações</button>
+  <button onclick="openLink('https://maps.google.com/')">🗺️ Mapas</button>
+  <button onclick="openLink('https://www.google.com/search?q=abrir+camera+android')">📷 Ajuda da câmera</button>
+  <button onclick="openLink('https://www.google.com/')">🔎 Pesquisa Google</button>
+ </div>
+ <p class="small">Os atalhos abrem páginas ou tentam abrir destinos compatíveis. Um HTML no navegador não tem permissão para abrir todos os aplicativos instalados ou alterar diretamente Wi-Fi e Bluetooth.</p>
+</section>
+
+<section class="panel" id="notesSection">
+ <div class="heading">▸ MEMÓRIA LOCAL</div>
+ <textarea id="noteInput" rows="3" placeholder="Digite uma nota para guardar..."></textarea>
+ <button class="primary" style="width:100%;margin-top:8px" onclick="saveNote()">💾 Salvar nota</button>
+ <div id="notesList" class="list" style="margin-top:12px"></div>
+ <p class="small">As notas ficam no armazenamento local deste navegador. Elas não são enviadas automaticamente ao Gemini, exceto quando incluídas como contexto da pergunta.</p>
+</section>
+
+<section class="panel" id="historySection">
+ <div class="heading">▸ HISTÓRICO DE CONVERSAS</div>
+ <div id="historyList" class="list"></div>
+ <button class="danger" style="margin-top:10px" onclick="clearHistory()">Apagar histórico</button>
+</section>
+
+<section class="panel" id="settingsSection">
+ <div class="heading">▸ CONFIGURAÇÕES DO JARVIS</div>
+ <label class="small">Nome do assistente</label>
+ <input id="assistantName" value="JARVIS" style="margin:6px 0 12px">
+ <label class="small">Voz</label>
+ <select id="voiceSelect" style="margin:6px 0 12px"><option value="default">Voz padrão</option></select>
+ <label class="small">Velocidade da fala</label>
+ <input id="rate" type="range" min=".7" max="1.3" step=".1" value="1" style="margin:8px 0 14px">
+ <label class="small">Chave Gemini API (opcional)</label>
+ <input id="apiKey" type="password" autocomplete="off" placeholder="Cole sua chave aqui">
+ <p class="small">A chave fica na memória desta página enquanto ela estiver aberta. Não a publique nem compartilhe. Para distribuir o sistema, use um servidor intermediário seguro.</p>
+ <label class="small">Modelo Gemini</label>
+ <select id="modelSelect" style="margin:6px 0 12px">
+  <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+  <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite</option>
+ </select>
+ <div class="row" style="flex-wrap:wrap">
+  <button class="primary" onclick="testAI(this)">🧠 Testar IA</button>
+  <button onclick="speak('Teste de voz do JARVIS concluído.')">🔊 Testar voz</button>
+  <button onclick="exportData()">📤 Exportar dados</button>
+  <button onclick="$('importFile').click()">📥 Importar dados</button>
+  <input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)">
+ </div>
+ <hr>
+ <button class="danger" onclick="resetAll()">Apagar dados locais</button>
+</section>
+</main>
+
+<footer>JARVIS IA • HTML para Android • Câmera, microfone e internet dependem das permissões do navegador.</footer>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const KEYS={notes:"jarvis_notes_v2",history:"jarvis_history_v2"};
+let cameraStream=null,imageBase64=null,imageMime="image/jpeg";
+
+function read(key,fallback){
+ try{const v=localStorage.getItem(key);return v===null?fallback:JSON.parse(v)}catch{return fallback}
+}
+function write(key,value){
+ try{localStorage.setItem(key,JSON.stringify(value));return true}
+ catch{alert("Não foi possível salvar os dados no navegador.");return false}
+}
+function go(id){$(id).scrollIntoView({behavior:"smooth",block:"start"})}
+function status(s){$("status").textContent=s}
+function name(){return $("assistantName").value.trim()||"JARVIS"}
+function openLink(url){window.open(url,"_blank","noopener")}
+function addMessage(text,who="ai",save=true){
+ const box=document.createElement("div");box.className="msg "+who;
+ const label=document.createElement("div");label.className="who";
+ label.textContent=who==="user"?"VOCÊ":name();
+ const content=document.createElement("div");content.textContent=text;
+ box.append(label,content);$("chat").appendChild(box);
+ $("chat").scrollTop=$("chat").scrollHeight;
+ if(save){
+  const h=read(KEYS.history,[]);
+  h.push({who,text,time:new Date().toISOString()});
+  write(KEYS.history,h.slice(-250));
+ }
+}
+function clearChat(){
+ if(confirm("Limpar apenas as mensagens desta tela?")){
+  $("chat").innerHTML="";
+ }
+}
+function renderHistory(){
+ const list=$("historyList"),h=read(KEYS.history,[]);
+ list.innerHTML="";
+ if(!h.length){list.textContent="Nenhuma conversa salva.";return}
+ h.slice().reverse().slice(0,80).forEach(x=>{
+  const item=document.createElement("div");item.className="item";
+  const c=document.createElement("div");c.className="itemcontent";
+  const b=document.createElement("b");b.textContent=x.who==="user"?"Você: ":name()+": ";
+  c.append(b,document.createTextNode(x.text));
+  const time=document.createElement("time");
+  time.textContent=x.time?new Date(x.time).toLocaleString("pt-BR"):"";
+  c.appendChild(time);item.appendChild(c);list.appendChild(item);
+ });
+}
+function clearHistory(){
+ if(confirm("Apagar todo o histórico salvo?")){
+  write(KEYS.history,[]);renderHistory();
+ }
+}
+function saveNote(){
+ const text=$("noteInput").value.trim();if(!text)return alert("Digite uma nota.");
+ const notes=read(KEYS.notes,[]);
+ notes.unshift({id:Date.now(),text,time:new Date().toISOString()});
+ if(write(KEYS.notes,notes)){ $("noteInput").value="";renderNotes(); }
+}
+function renderNotes(){
+ const list=$("notesList"),notes=read(KEYS.notes,[]);list.innerHTML="";
+ if(!notes.length){list.textContent="Nenhuma nota salva.";return}
+ notes.forEach(n=>{
+  const item=document.createElement("div");item.className="item";
+  const c=document.createElement("div");c.className="itemcontent";
+  c.textContent=n.text;
+  const time=document.createElement("time");
+  time.textContent=n.time?new Date(n.time).toLocaleString("pt-BR"):"";
+  c.appendChild(time);
+  const b=document.createElement("button");b.className="danger";b.textContent="Excluir";
+  b.onclick=()=>{write(KEYS.notes,read(KEYS.notes,[]).filter(x=>x.id!==n.id));renderNotes()};
+  item.append(c,b);list.appendChild(item);
+ });
+}
+
+const apps=[
+ ["WhatsApp","🟢","https://wa.me/"],
+ ["YouTube","▶️","https://youtube.com/"],
+ ["Google","🔎","https://google.com/"],
+ ["Gmail","✉️","https://mail.google.com/"],
+ ["Google Maps","🗺️","https://maps.google.com/"],
+ ["Drive","📁","https://drive.google.com/"],
+ ["Instagram","📸","https://instagram.com/"],
+ ["Facebook","🔵","https://facebook.com/"],
+ ["TikTok","🎵","https://tiktok.com/"],
+ ["Telegram","✈️","https://t.me/"],
+ ["Spotify","🎧","https://open.spotify.com/"],
+ ["ChatGPT","🤖","https://chatgpt.com/"],
+ ["Gemini","✨","https://gemini.google.com/"],
+ ["Minecraft","🟩","https://www.minecraft.net/"]
+];
+function renderApps(){
+ const q=$("appSearch").value.toLowerCase(),grid=$("appGrid");grid.innerHTML="";
+ apps.filter(a=>a[0].toLowerCase().includes(q)).forEach(a=>{
+  const b=document.createElement("button");b.className="tile";
+  const icon=document.createElement("span");icon.className="emoji";icon.textContent=a[1];
+  const t=document.createElement("span"),bold=document.createElement("b"),small=document.createElement("small");
+  bold.textContent=a[0];small.textContent="Abrir destino";
+  t.append(bold,small);b.append(icon,t);b.onclick=()=>openLink(a[2]);grid.appendChild(b);
+ });
+ if(!grid.children.length)grid.textContent="Nenhum resultado.";
+}
+
+function localReply(text){
+ const q=text.toLowerCase();
+ if(/que horas|horário|hora agora/.test(q))return "Agora são "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+".";
+ if(/que dia|data de hoje|data atual/.test(q))return "Hoje é "+new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+".";
+ if(/seu nome|quem é você|quem e voce/.test(q))return "Sou "+name()+", seu assistente pessoal.";
+ if(/abrir aplicativos|mostrar aplicativos/.test(q)){go("appsSection");return "Central de aplicativos aberta."}
+ if(/minhas notas|minha memória|minha memoria/.test(q)){go("notesSection");return "Central de memória aberta."}
+ if(/câmera|camera|enxergar|ver imagem/.test(q)){go("visionSection");return "Central de visão aberta. Ative a câmera ou escolha uma foto."}
+ if(/estudar|matemática|matematica|português|portugues/.test(q))return "Claro! Diga a matéria e o assunto. Posso ajudar com explicações e exercícios.";
+ if(/olá|ola|oi\b|bom dia|boa tarde|boa noite/.test(q))return "Olá! Estou pronto para ajudar.";
+ return "Recebi seu comando. Configure a chave Gemini para obter respostas inteligentes. No modo local, minhas respostas são limitadas.";
+}
+async function geminiRequest(parts){
+ const key=$("apiKey").value.trim();
+ if(!key)throw Error("Configure a chave Gemini nas configurações.");
+ const model=$("modelSelect").value;
+ const url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(key);
+ const notes=read(KEYS.notes,[]).slice(0,15).map(n=>n.text).join("\n");
+ const payload={
+  systemInstruction:{parts:[{text:"Você é "+name()+", um assistente futurista, sério, educado e prestativo. Responda em português brasileiro. Não afirme que executou ações que não realizou nem que controla todo o Android. Notas do usuário como contexto: "+(notes||"nenhuma")}]},
+  contents:[{role:"user",parts}],
+  generationConfig:{temperature:.6,maxOutputTokens:1000}
+ };
+ const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+ const data=await response.json();
+ if(!response.ok)throw Error(data?.error?.message||"Erro na API Gemini.");
+ const answer=data?.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("").trim();
+ if(!answer)throw Error("A IA não retornou texto.");
+ return answer;
+}
+async function sendMessage(){
+ const text=$("prompt").value.trim();if(!text)return;
+ $("prompt").value="";addMessage(text,"user");status("PROCESSANDO");
+ const wait=document.createElement("div");wait.className="msg ai";wait.textContent=name()+" está pensando...";
+ $("chat").appendChild(wait);
+ try{
+  const answer=$("apiKey").value.trim()?await geminiRequest([{text}]):localReply(text);
+  wait.remove();addMessage(answer);status("PRONTO");
+ }catch(e){wait.remove();addMessage("Erro: "+e.message);status("VERIFICAR IA")}
+}
+function runCommand(text){$("prompt").value=text;sendMessage()}
+$("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();sendMessage()}});
+
+function speak(text){
+ if(!("speechSynthesis"in window)){alert("Este navegador não suporta leitura em voz alta.");return}
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(text);u.lang="pt-BR";u.rate=Number($("rate").value)||1;
+ const selected=$("voiceSelect").value;
+ const v=speechSynthesis.getVoices().find(x=>x.name===selected);
+ if(v)u.voice=v;
+ speechSynthesis.speak(u);
+}
+function loadVoices(){
+ if(!("speechSynthesis"in window))return;
+ const select=$("voiceSelect"),current=select.value;
+ select.innerHTML='<option value="default">Voz padrão</option>';
+ speechSynthesis.getVoices().filter(v=>/pt[-_]BR|portuguese|português/i.test(v.lang+" "+v.name)).forEach(v=>{
+  const o=document.createElement("option");o.value=v.name;o.textContent=v.name+" ("+v.lang+")";select.appendChild(o);
+ });
+ if([...select.options].some(o=>o.value===current))select.value=current;
+}
+if("speechSynthesis"in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+
+function startVoice(){
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Recognition)return alert("Reconhecimento de voz indisponível neste navegador. Tente o Chrome e confira as permissões.");
+ const r=new Recognition();r.lang="pt-BR";r.interimResults=false;
+ status("OUVINDO");
+ r.onresult=e=>{$("prompt").value=e.results[0][0].transcript;sendMessage()};
+ r.onerror=()=>{status("PRONTO");alert("Não consegui reconhecer sua voz.")};
+ r.onend=()=>{if($("status").textContent==="OUVINDO")status("PRONTO")};
+ try{r.start()}catch{alert("Não foi possível iniciar o microfone.")}
+}
+
+async function startCamera(){
+ if(!navigator.mediaDevices?.getUserMedia)return alert("A câmera exige um navegador compatível e uma página HTTPS ou contexto seguro.");
+ try{
+  stopCamera();
+  cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
+  const video=$("camera");video.srcObject=cameraStream;video.classList.remove("hidden");await video.play();
+  status("CÂMERA ATIVA");
+ }catch(e){alert("Não consegui abrir a câmera. Permita o acesso e tente abrir a página em HTTPS.");}
+}
+function stopCamera(){
+ if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}
+ const v=$("camera");v.pause();v.srcObject=null;v.classList.add("hidden");
+ if($("status").textContent==="CÂMERA ATIVA")status("PRONTO");
+}
+function setImage(dataURL){
+ const i=dataURL.indexOf(",");
+ const match=dataURL.slice(0,i).match(/^data:(image\/[a-zA-Z0-9.+-]+);base64$/);
+ if(i<0||!match)throw Error("Formato de imagem inválido.");
+ imageMime=match[1];imageBase64=dataURL.slice(i+1);
+ $("preview").src=dataURL;$("preview").classList.remove("hidden");
+}
+function capturePhoto(){
+ const v=$("camera");if(!cameraStream||!v.videoWidth)return alert("Ative a câmera primeiro.");
+ const c=$("canvas"),scale=Math.min(1,1280/v.videoWidth);
+ c.width=Math.round(v.videoWidth*scale);c.height=Math.round(v.videoHeight*scale);
+ c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+ setImage(c.toDataURL("image/jpeg",.82));
+}
+async function selectImage(e){
+ const file=e.target.files?.[0];e.target.value="";
+ if(!file)return;
+ if(!file.type.startsWith("image/"))return alert("Escolha um arquivo de imagem.");
+ if(file.size>12*1024*1024)return alert("Escolha uma imagem menor que 12 MB.");
+ try{
+  const url=await new Promise((resolve,reject)=>{
+   const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error("Não foi possível ler a imagem."));r.readAsDataURL(file);
+  });
+  setImage(url);
+ }catch(err){alert(err.message)}
+}
+async function analyzeImage(){
+ if(!imageBase64)return alert("Ative a câmera e capture uma foto ou escolha uma imagem.");
+ const question=$("visionQuestion").value.trim()||"Descreva a imagem.";
+ addMessage("Pergunta sobre imagem: "+question,"user");status("ANALISANDO");
+ try{
+  const answer=await geminiRequest([
+   {text:"Analise esta imagem e responda em português brasileiro. Diferencie observações de suposições e não afirme identificar com certeza pessoas desconhecidas. Pergunta: "+question},
+   {inline_data:{mime_type:imageMime,data:imageBase64}}
+  ]);
+  addMessage(answer);status("PRONTO");speak(answer);
+ }catch(e){addMessage("Não consegui analisar a imagem: "+e.message);status("ERRO")}
+}
+function askVisionVoice(){
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Recognition)return alert("Reconhecimento de voz indisponível.");
+ const r=new Recognition();r.lang="pt-BR";r.interimResults=false;
+ r.onresult=e=>{$("visionQuestion").value=e.results[0][0].transcript;analyzeImage()};
+ r.onerror=()=>alert("Não consegui reconhecer sua pergunta.");
+ try{r.start()}catch{alert("Não foi possível iniciar o microfone.")}
+}
+async function testAI(button){
+ if(!$("apiKey").value.trim())return alert("Cole sua chave Gemini primeiro.");
+ button.disabled=true;status("TESTANDO IA");
+ try{const answer=await geminiRequest([{text:"Responda apenas: JARVIS online."}]);addMessage("Teste da IA: "+answer);status("IA CONECTADA")}
+ catch(e){alert("Falha no teste: "+e.message);status("ERRO IA")}
+ finally{button.disabled=false}
+}
+function exportData(){
+ const data={notes:read(KEYS.notes,[]),history:read(KEYS.history,[])};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="jarvis-backup.json";a.click();URL.revokeObjectURL(url);
+}
+function importData(e){
+ const file=e.target.files?.[0];e.target.value="";if(!file)return;
+ const r=new FileReader();
+ r.onload=()=>{
+  try{
+   const d=JSON.parse(r.result);
+   if(!confirm("Importar notas e histórico?"))return;
+   write(KEYS.notes,Array.isArray(d.notes)?d.notes:[]);
+   write(KEYS.history,Array.isArray(d.history)?d.history:[]);
+   renderNotes();renderHistory();alert("Importação concluída.");
+  }catch{alert("Arquivo de backup inválido.")}
+ };
+ r.readAsText(file);
+}
+function resetAll(){
+ if(!confirm("Apagar notas e histórico locais?"))return;
+ localStorage.removeItem(KEYS.notes);localStorage.removeItem(KEYS.history);
+ $("apiKey").value="";$("assistantName").value="JARVIS";
+ renderNotes();renderHistory();alert("Dados locais apagados.");
+}
+document.addEventListener("visibilitychange",()=>{if(document.hidden)stopCamera()});
+$("greeting").textContent="Inicializado às "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+".";
+renderApps();renderNotes();renderHistory();
+</script>
+</body>
+</html>
